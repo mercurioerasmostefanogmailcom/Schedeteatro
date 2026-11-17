@@ -1,0 +1,1577 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skené - Generatore schede spettacolo</title>
+
+<style>
+:root {
+  --bg:#F5F1E9;
+  --card:#FFFFFF;
+  --text:#302A29;
+  --muted:#625956;
+  --red:#762D40;
+  --gold:#A77A37;
+  --border:#DED5C9;
+  --green:#526B5C;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.6;
+}
+
+button,input,textarea,select { font:inherit; }
+
+button { cursor:pointer; }
+
+.topbar {
+  background:var(--red);
+  color:white;
+  padding:23px max(22px,calc((100% - 1180px)/2));
+}
+
+.topbar .brand {
+  color:#F0D49B;
+  font-size:11px;
+  font-weight:bold;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.topbar strong {
+  display:block;
+  font:normal 25px Georgia,serif;
+  margin-top:5px;
+}
+
+.wrap {
+  max-width:1180px;
+  padding:30px 22px;
+  margin:auto;
+}
+
+h1 {
+  font:normal clamp(30px,4vw,42px) Georgia,serif;
+  margin:0 0 8px;
+}
+
+.lead {
+  color:var(--muted);
+  max-width:750px;
+}
+
+.layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 290px;
+  gap:22px;
+  align-items:start;
+}
+
+.panel,.sidecard {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 8px 25px rgba(48,42,41,.045);
+}
+
+.panel {
+  padding:26px;
+  margin-bottom:20px;
+}
+
+.section-head {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:14px;
+  margin-bottom:22px;
+}
+
+.num {
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  background:#F4E9E9;
+  color:var(--red);
+  border-radius:10px;
+  font-weight:bold;
+  font-size:12px;
+}
+
+h2 {
+  font:normal 24px Georgia,serif;
+  color:var(--red);
+  margin:0;
+}
+
+h3 {
+  font:normal 19px Georgia,serif;
+  color:var(--red);
+  margin:25px 0 13px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+
+.field { min-width:0; }
+.field.full { grid-column:1/-1; }
+
+label {
+  display:block;
+  font-size:12px;
+  font-weight:bold;
+  color:#625956;
+  margin-bottom:6px;
+}
+
+input,textarea,select {
+  width:100%;
+  border:1px solid #DED5C9;
+  background:#FFFEFC;
+  color:var(--text);
+  border-radius:9px;
+  padding:11px 12px;
+  outline:none;
+}
+
+input:focus,textarea:focus,select:focus {
+  border-color:var(--red);
+  box-shadow:0 0 0 3px #762D4012;
+}
+
+textarea {
+  min-height:105px;
+  resize:vertical;
+}
+
+.btn {
+  border:1px solid var(--border);
+  border-radius:30px;
+  padding:10px 16px;
+  background:white;
+  color:var(--text);
+  font-weight:bold;
+}
+
+.btn.primary {
+  background:var(--red);
+  color:white;
+  border-color:var(--red);
+}
+
+.btn.soft {
+  background:#F4E9E9;
+  color:var(--red);
+  border-color:transparent;
+}
+
+.btn:disabled {
+  opacity:.55;
+  cursor:wait;
+}
+
+.sidecard {
+  padding:20px;
+  position:sticky;
+  top:15px;
+}
+
+.sidecard h2 { font-size:21px; }
+
+.stat {
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+
+.progress {
+  height:7px;
+  border-radius:20px;
+  background:#eee8df;
+  overflow:hidden;
+  margin:15px 0 8px;
+}
+
+.progress span {
+  display:block;
+  height:100%;
+  background:var(--gold);
+  width:0;
+}
+
+.sticky-actions {
+  display:grid;
+  gap:9px;
+  margin-top:18px;
+}
+
+.notice {
+  margin-top:15px;
+  padding:13px;
+  background:#F5F1E9;
+  color:#625956;
+  border-radius:10px;
+  font-size:12px;
+}
+
+.photo-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+}
+
+.photo {
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:11px;
+  min-width:0;
+  background:#FFFEFC;
+}
+
+.photo-preview {
+  aspect-ratio:4/3;
+  background:#F5F1E9;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  margin-bottom:10px;
+  color:#81766E;
+  font-size:12px;
+}
+
+.photo.drag-over { outline:3px dashed var(--red); background:#F4E9E9; }
+.photo-preview img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.photo .field { margin-top:8px; }
+
+.photo input[type=file] {
+  font-size:11px;
+  padding:7px;
+}
+
+.remove {
+  border:0;
+  background:none;
+  color:#9B5145;
+  font-size:11px;
+  padding:8px 0;
+}
+
+.hidden { display:none!important; }
+.hero-image-wrap { width:100%; margin:0 0 22px; }
+.hero-image-wrap img { display:block; width:100%; max-height:280px; object-fit:cover; border-radius:14px; border:1px solid var(--border); }
+.color-tools { display:grid; grid-template-columns:1fr auto auto; gap:9px; align-items:end; }
+.color-tools input[type=color] { min-height:44px; padding:4px; }
+.doc-list { display:grid; gap:10px; }
+.doc-row { display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto; gap:8px; align-items:center; padding:10px; border:1px solid var(--border); border-radius:10px; background:#FFFEFC; }
+.doc-row input[type=checkbox] { width:auto; }
+.doc-row .doc-name,.doc-row .doc-url { min-width:0; }
+@media(max-width:650px) { .doc-row { grid-template-columns:auto 1fr auto; } .doc-row .doc-url { grid-column:2/4; } }
+.status-note { font-size:12px; color:var(--muted); margin-top:8px; }
+
+.review-item {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+
+.review-item span {
+  color:var(--muted);
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+
+footer {
+  max-width:1180px;
+  margin:25px auto;
+  padding:18px 22px;
+  border-top:1px solid var(--border);
+  color:var(--muted);
+  font-size:11px;
+  text-align:center;
+}
+
+@media(max-width:850px) {
+  .layout { grid-template-columns:1fr; }
+  .sidecard { position:static; order:-1; }
+}
+
+@media(max-width:560px) {
+  .grid { grid-template-columns:1fr; }
+  .field.full { grid-column:auto; }
+  .panel { padding:18px; }
+  .photo-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">Archivio storico · Skené</div>
+  <strong>Generatore schede spettacolo</strong>
+</header>
+
+<main class="wrap">
+
+<h1>Nuova scheda teatrale</h1>
+
+<div class="hero-image-wrap">
+  <label for="heroImage">Immagine introduttiva (facoltativa)</label>
+  <input id="heroImage" type="file" accept="image/*">
+  <div id="heroPreview" class="hidden" style="margin-top:10px"><img alt="Anteprima immagine introduttiva" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px"></div>
+</div>
+
+<p class="lead">
+Compila le informazioni dello spettacolo, inserisci le fotografie
+e genera la pagina definitiva secondo il modello editoriale Skené.
+</p>
+
+<div class="panel" style="margin-bottom:20px;padding:18px 22px">
+  <h2 style="font-size:20px;margin-bottom:12px">Colore della scheda esportata</h2>
+  <div class="color-tools">
+    <div><label for="themeColor">Colore Bordeaux personalizzato</label><input id="themeColor" type="color" value="#762D40"></div>
+    <button class="btn" id="eyedropperBtn" type="button">Contagocce</button>
+    <button class="btn" id="resetColorBtn" type="button">Ripristina</button>
+  </div>
+  <div class="status-note">La modifica riguarda soltanto la pagina esportata. Il generatore mantiene il Bordeaux originale.</div>
+</div>
+
+<div class="layout">
+
+<div>
+
+<!-- 01 IDENTITA' -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">01</span>
+<h2>Identità dello spettacolo</h2>
+</div>
+
+<div class="grid">
+
+<div class="field full">
+<label for="titolo">Titolo dello spettacolo *</label>
+<input id="titolo" required>
+</div>
+
+<div class="field full">
+<label for="sottotitolo">Sottotitolo / Descrizione breve</label>
+<input id="sottotitolo" value="Nadia Cervellera · Spettacoli e percorso scenografico">
+</div>
+
+<div class="field">
+<label for="anno">Anno</label>
+<input id="anno">
+</div>
+
+<div class="field">
+<label for="teatro">Teatro / Luogo</label>
+<input id="teatro">
+</div>
+
+<div class="field full">
+<label for="compagnia">Compagnia / Produzione</label>
+<input id="compagnia">
+</div>
+
+</div>
+</section>
+
+<!-- 02 PROGETTO -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">02</span>
+<h2>Il progetto teatrale</h2>
+</div>
+
+<div class="grid">
+
+<div class="field full">
+<label for="presentazione">Presentazione dello spettacolo</label>
+<textarea id="presentazione"></textarea>
+</div>
+
+<div class="field full">
+<label for="percorso">Origine e percorso creativo</label>
+<textarea id="percorso"></textarea>
+</div>
+
+<div class="field full">
+<label for="nadia">Contributo artistico e professionale di Nadia Cervellera</label>
+<textarea id="nadia"></textarea>
+</div>
+
+<div class="field full">
+<label for="citazione">Frase significativa / Citazione</label>
+<textarea id="citazione"></textarea>
+</div>
+
+</div>
+</section>
+
+<!-- 03 SCENOGRAFIA -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">03</span>
+<h2>La scenografia e l'allestimento</h2>
+</div>
+
+<div class="grid">
+
+<div class="field full">
+<label for="ideazione">Ideazione e progettazione scenografica</label>
+<textarea id="ideazione"></textarea>
+</div>
+
+<div class="field full">
+<label for="realizzazione">Costruzione e realizzazione</label>
+<textarea id="realizzazione"></textarea>
+</div>
+
+<div class="field full">
+<label for="tecniche">Tecniche, materiali e scelte artistiche</label>
+<textarea id="tecniche"></textarea>
+</div>
+
+</div>
+
+<h3>Bozzetti e progettazione</h3>
+<div id="bozzetti" class="photo-grid"></div>
+<button class="btn soft" type="button" onclick="addPhoto('bozzetti')">
+＋ Aggiungi bozzetto
+</button>
+
+<h3>Realizzazione e allestimento</h3>
+<div id="allestimento" class="photo-grid"></div>
+<button class="btn soft" type="button" onclick="addPhoto('allestimento')">
+＋ Aggiungi fotografia
+</button>
+
+</section>
+
+<!-- 04 DOCUMENTAZIONE FOTOGRAFICA -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">04</span>
+<h2>Lo spettacolo in immagini</h2>
+</div>
+
+<p class="lead">
+Documentazione fotografica degli interpreti, delle scene
+e dei dettagli scenografici.
+</p>
+
+<div class="field">
+<label for="galleryIntro">Introduzione alla galleria</label>
+<textarea id="galleryIntro"></textarea>
+</div>
+
+<div id="galleria" class="photo-grid"></div>
+
+<button class="btn soft" type="button" onclick="addPhoto('galleria')">
+＋ Aggiungi fotografia
+</button>
+
+</section>
+
+<!-- 05 DOCUMENTI -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">05</span>
+<h2>Documenti e materiali d'archivio</h2>
+</div>
+
+<p class="lead">Seleziona i materiali da pubblicare, associa un collegamento e aggiungi eventuali altre voci.</p>
+<div id="documentsList" class="doc-list"></div>
+<button class="btn soft" id="addDocumentBtn" type="button" style="margin-top:12px">＋ Aggiungi documento</button>
+
+</section>
+
+<!-- 06 CREDITI -->
+
+<section class="panel">
+
+<div class="section-head">
+<span class="num">06</span>
+<h2>Crediti dello spettacolo</h2>
+</div>
+
+<div class="grid">
+
+<div class="field">
+<label for="autore">Autore / Testo</label>
+<input id="autore">
+</div>
+
+<div class="field">
+<label for="regia">Regia</label>
+<input id="regia">
+</div>
+
+<div class="field">
+<label for="scenografo">Scenografia</label>
+<input id="scenografo" value="Nadia Cervellera">
+</div>
+
+<div class="field">
+<label for="costumi">Costumi</label>
+<input id="costumi">
+</div>
+
+<div class="field">
+<label for="luci">Luci</label>
+<input id="luci">
+</div>
+
+<div class="field">
+<label for="musiche">Musiche</label>
+<input id="musiche">
+</div>
+
+<div class="field">
+<label for="interpreti">Interpreti</label>
+<textarea id="interpreti"></textarea>
+</div>
+
+<div class="field">
+<label for="collaboratori">Altri collaboratori</label>
+<textarea id="collaboratori"></textarea>
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<!-- PANNELLO DI CONTROLLO -->
+
+<aside class="sidecard">
+
+<h2>Controllo scheda</h2>
+
+<p class="lead">
+Riepilogo aggiornato durante la compilazione.
+</p>
+
+<div class="stat">
+<span>Campi compilati</span>
+<b id="filled">0</b>
+</div>
+
+<div class="stat">
+<span>Fotografie</span>
+<b id="photoCount">0</b>
+</div>
+
+<div class="progress">
+<span id="progress"></span>
+</div>
+
+<div id="progressText" class="lead">
+Inizia inserendo il titolo.
+</div>
+
+<div class="sticky-actions">
+
+<button class="btn" id="saveDraftBtn" type="button">Salva bozza</button>
+<button class="btn" id="exportDraftBtn" type="button">Esporta bozza</button>
+<button class="btn" id="importDraftBtn" type="button">Importa bozza</button>
+<input id="importDraftFile" type="file" accept=".json,application/json" hidden>
+<button class="btn" id="clearDocumentBtn" type="button">Pulisci documento</button>
+
+<button class="btn" id="reviewBtn" type="button">
+Controlla riepilogo
+</button>
+
+<button class="btn primary" id="exportBtn" type="button">
+Genera e salva la scheda
+</button>
+
+</div>
+
+<div class="notice">
+Il documento definitivo mantiene la grafica SKENÉ Bordeaux.
+I campi vuoti e le sezioni senza contenuti vengono esclusi.
+Le fotografie vengono salvate come file separati.
+</div>
+
+<div id="review" class="hidden">
+<h3>Riepilogo</h3>
+<div id="reviewContent"></div>
+</div>
+
+</aside>
+
+</div>
+</main>
+
+<footer>
+SKENÉ · TEATRANDO INSIEME
+</footer>
+
+<script>
+
+// ========================================
+// FUNZIONI GENERALI
+// ========================================
+
+const $ = id => document.getElementById(id);
+
+const fields = [...document.querySelectorAll(
+  'main input:not([type=file]),main textarea'
+)];
+
+let photos = [];
+let photoId = 0;
+let heroFile = null;
+let heroDataUrl = '';
+let documents = [];
+const DEFAULT_DOCS = ['Locandina dello spettacolo','Programma di sala','Recensioni','Documentazione originale'].map(name=>({name,url:'',selected:false}));
+const DRAFT_KEY = 'skene-generatore-bozza-v2';
+const DEFAULT_RED = '#762D40';
+
+function value(id) {
+  return String($(id)?.value ?? '').normalize('NFC').trim();
+}
+
+function esc(s) {
+  return String(s ?? '').normalize('NFC').replace(/[&<>"']/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+// Mantiene accenti, apostrofi e caratteri Unicode.
+// Sostituisce solamente i caratteri vietati nei nomi
+// di file e cartelle e rimuove i punti finali.
+
+function safeName(s) {
+  let name = String(s || 'Spettacolo')
+    .normalize('NFC')
+    .trim()
+    .replace(/[\\/:*?"<>|\u0000-\u001F]/g,'-')
+    .replace(/\s+/g,' ')
+    .replace(/[. ]+$/g,'')
+    .slice(0,120);
+
+  if (!name) name = 'Spettacolo';
+
+  if (/^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(name)) {
+    name = '_' + name;
+  }
+
+  return name;
+}
+
+// ========================================
+// RIEPILOGO
+// ========================================
+
+function update() {
+  const filled = fields.filter(f=>f.value.trim()).length;
+  const total = fields.length;
+
+  $('filled').textContent = filled + '/' + total;
+
+  $('photoCount').textContent =
+    photos.filter(p=>p.file).length;
+
+  $('progress').style.width =
+    Math.round(filled/Math.max(total,1)*100) + '%';
+
+  $('progressText').textContent =
+    value('titolo')
+      ? 'Scheda compilata al ' +
+        Math.round(filled/Math.max(total,1)*100) + '%.'
+      : 'Inizia inserendo il titolo.';
+}
+
+fields.forEach(f=>f.addEventListener('input',update));
+
+// ========================================
+// FOTOGRAFIE
+// ========================================
+
+function addPhoto(group) {
+  const p = {
+    id:++photoId,
+    group,
+    file:null,
+    url:'',
+    caption:'',
+    credit:''
+  };
+
+  photos.push(p);
+
+  const card = document.createElement('div');
+  card.className = 'photo';
+
+  card.innerHTML = `
+    <div class="photo-preview">
+      <span>Anteprima fotografia</span>
+    </div>
+
+    <div class="field">
+      <label>Carica immagine</label>
+      <input type="file" accept="image/*" class="file" multiple>
+    </div>
+
+    <div class="field">
+      <label>Didascalia</label>
+      <input class="caption" placeholder="Descrizione fotografia">
+    </div>
+
+    <div class="field">
+      <label>Credito fotografico</label>
+      <input class="credit" placeholder="© Fotografo">
+    </div>
+
+    <button class="remove" type="button">
+      Rimuovi fotografia
+    </button>
+  `;
+
+  $(group).append(card);
+
+  const file = card.querySelector('.file');
+
+  function assignPhoto(target, targetCard, f) {
+    if (!f || !f.type.startsWith('image/')) return false;
+    if (target.url) URL.revokeObjectURL(target.url);
+    target.file=f; target.url=URL.createObjectURL(f);
+    targetCard.querySelector('.photo-preview').replaceChildren();
+    const img=document.createElement('img'); img.src=target.url; img.alt='Anteprima fotografia';
+    targetCard.querySelector('.photo-preview').append(img);
+    update(); return true;
+  }
+  file.addEventListener('change',()=>{
+    const chosen=[...file.files]; if(!chosen.length) return;
+    const valid=chosen.filter(f=>f.type.startsWith('image/'));
+    if(valid.length!==chosen.length) alert('Alcuni file non sono immagini e sono stati ignorati.');
+    if(valid.length) assignPhoto(p,card,valid[0]);
+    valid.slice(1).forEach(f=>{ addPhoto(group); const last=photos[photos.length-1]; const lastCard=$(group).lastElementChild; assignPhoto(last,lastCard,f); });
+    file.value='';
+  });
+  card.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drag-over');});
+  card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+  card.addEventListener('drop',e=>{e.preventDefault();card.classList.remove('drag-over');const dropped=[...(e.dataTransfer?.files||[])].filter(f=>f.type.startsWith('image/'));if(dropped.length){assignPhoto(p,card,dropped[0]);dropped.slice(1).forEach(f=>{addPhoto(group);const q=photos[photos.length-1];assignPhoto(q,$(group).lastElementChild,f);});}});
+
+  card.querySelector('.caption').addEventListener(
+    'input',e=>p.caption=e.target.value
+  );
+
+  card.querySelector('.credit').addEventListener(
+    'input',e=>p.credit=e.target.value
+  );
+
+  card.querySelector('.remove').addEventListener(
+    'click',()=>{
+      if (p.url) URL.revokeObjectURL(p.url);
+
+      photos=photos.filter(x=>x.id!==p.id);
+      card.remove();
+      update();
+    }
+  );
+
+  update();
+}
+
+// ========================================
+// IMMAGINE INTRODUTTIVA E COLORE
+// ========================================
+$('heroImage').addEventListener('change',()=>{
+  const f=$('heroImage').files?.[0]; if(!f) return;
+  if(!f.type.startsWith('image/')) { alert('Seleziona un file immagine valido.'); $('heroImage').value=''; return; }
+  heroFile=f;
+  const reader=new FileReader(); reader.onload=()=>{heroDataUrl=String(reader.result||'');$('heroPreview').classList.remove('hidden');$('heroPreview').querySelector('img').src=heroDataUrl;}; reader.readAsDataURL(f);
+});
+$('eyedropperBtn').addEventListener('click',async()=>{
+  if(!window.EyeDropper){alert('Il contagocce non è supportato da questo browser. Puoi usare il selettore colore.');return;}
+  try{const result=await new EyeDropper().open();$('themeColor').value=result.sRGBHex;}catch(e){if(e.name!=='AbortError')alert('Impossibile usare il contagocce.');}
+});
+$('resetColorBtn').addEventListener('click',()=>$('themeColor').value=DEFAULT_RED);
+
+// ========================================
+// DOCUMENTI SELEZIONABILI
+// ========================================
+function renderDocuments(){
+  const root=$('documentsList'); root.replaceChildren();
+  documents.forEach((doc,index)=>{
+    const row=document.createElement('div'); row.className='doc-row';
+    const check=document.createElement('input'); check.type='checkbox'; check.checked=!!doc.selected; check.setAttribute('aria-label','Includi documento'); check.addEventListener('change',()=>doc.selected=check.checked);
+    const name=document.createElement('input'); name.className='doc-name'; name.placeholder='Nome documento'; name.value=doc.name; name.setAttribute('aria-label','Nome documento'); name.addEventListener('input',()=>doc.name=name.value);
+    const url=document.createElement('input'); url.className='doc-url'; url.type='url'; url.placeholder='URL (facoltativo)'; url.value=doc.url||''; url.setAttribute('aria-label','URL documento'); url.addEventListener('input',()=>doc.url=url.value);
+    const remove=document.createElement('button'); remove.type='button'; remove.className='remove'; remove.textContent='Rimuovi'; remove.addEventListener('click',()=>{documents.splice(index,1);renderDocuments();});
+    row.append(check,name,url,remove); root.append(row);
+  });
+}
+$('addDocumentBtn').addEventListener('click',()=>{documents.push({name:'',url:'',selected:true});renderDocuments();});
+
+// ========================================
+// BOZZE: SALVA, ESPORTA, IMPORTA E RIPRISTINA
+// ========================================
+function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);});}
+function dataURLToFile(data,name,type){const parts=data.split(',');const binary=atob(parts[1]);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new File([bytes],name,{type:type||'image/jpeg'});}
+
+async function buildDraft(){
+  const savedPhotos=[];
+  for(const p of photos){
+    savedPhotos.push({group:p.group,caption:p.caption,credit:p.credit,file:p.file?await readFileAsDataURL(p.file):'',fileName:p.file?.name||'',fileType:p.file?.type||''});
+  }
+  return {format:'skene-draft',version:2,fields:Object.fromEntries(fields.map(f=>[f.id,f.value])),documents:documents.map(d=>({...d})),themeColor:$('themeColor').value,heroDataUrl,heroName:heroFile?.name||'',heroType:heroFile?.type||'',photos:savedPhotos,savedAt:new Date().toISOString()};
+}
+
+function validateDraft(draft){
+  return !!draft && draft.version===2 && draft.fields && typeof draft.fields==='object' && Array.isArray(draft.photos) && Array.isArray(draft.documents);
+}
+
+async function applyDraft(draft){
+  if(!validateDraft(draft)) throw new Error('Il file non sembra una bozza SKENÉ valida o appartiene a una versione non compatibile.');
+  // Svuota solo le fotografie attualmente caricate prima di ricostruire la bozza.
+  for(const p of photos) if(p.url) URL.revokeObjectURL(p.url);
+  photos=[]; photoId=0;
+  ['bozzetti','allestimento','galleria'].forEach(id=>$(id).replaceChildren());
+  for(const f of fields) if(Object.prototype.hasOwnProperty.call(draft.fields,f.id)) f.value=draft.fields[f.id] ?? '';
+  documents=draft.documents.map(d=>({name:String(d.name||''),url:String(d.url||''),selected:!!d.selected}));
+  renderDocuments();
+  $('themeColor').value=draft.themeColor||DEFAULT_RED;
+  heroDataUrl=draft.heroDataUrl||''; heroFile=null; $('heroImage').value='';
+  $('heroPreview').classList.toggle('hidden',!heroDataUrl);
+  if(heroDataUrl){
+    $('heroPreview').querySelector('img').src=heroDataUrl;
+    try{heroFile=dataURLToFile(heroDataUrl,draft.heroName||'immagine-introduttiva',draft.heroType);}catch{heroFile=null;}
+  } else {$('heroPreview').querySelector('img').removeAttribute('src');}
+  for(const item of draft.photos){
+    if(!['bozzetti','allestimento','galleria'].includes(item.group)) continue;
+    addPhoto(item.group);const p=photos[photos.length-1];const card=$(item.group).lastElementChild;
+    p.caption=item.caption||'';p.credit=item.credit||'';
+    card.querySelector('.caption').value=p.caption;card.querySelector('.credit').value=p.credit;
+    if(item.file){
+      try{const f=dataURLToFile(item.file,item.fileName||'fotografia',item.fileType);p.file=f;p.url=URL.createObjectURL(f);const img=document.createElement('img');img.src=p.url;img.alt='Anteprima fotografia';card.querySelector('.photo-preview').replaceChildren(img);}catch{}
+    }
+  }
+  update();
+}
+
+async function saveDraft(){
+  const button=$('saveDraftBtn');button.disabled=true;button.textContent='Salvataggio…';
+  try{
+    const draft=await buildDraft();
+    localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
+    alert('Bozza salvata nel browser su questo dispositivo.');
+  }catch(e){alert('Non è stato possibile salvare la bozza. Potrebbe esserci poco spazio disponibile nel browser. Dettaglio: '+e.message);}
+  finally{button.disabled=false;button.textContent='Salva bozza';}
+}
+
+async function exportDraft(){
+  const button=$('exportDraftBtn');button.disabled=true;button.textContent='Preparazione…';
+  try{
+    const draft=await buildDraft();
+    const blob=new Blob([JSON.stringify(draft,null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    const title=String($('titolo')?.value||'bozza-skene').normalize('NFC').replace(/[^\p{L}\p{N}_-]+/gu,'-').replace(/^-+|-+$/g,'').slice(0,70)||'bozza-skene';
+    a.href=url;a.download=title+'-bozza-skene.json';document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(e){alert('Esportazione non riuscita: '+e.message);}
+  finally{button.disabled=false;button.textContent='Esporta bozza';}
+}
+
+$('importDraftBtn').addEventListener('click',()=>$('importDraftFile').click());
+$('importDraftFile').addEventListener('change',async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try{
+    const parsed=JSON.parse(await file.text());
+    if(!validateDraft(parsed)) throw new Error('Formato non riconosciuto. Seleziona un file JSON esportato dal generatore SKENÉ.');
+    if(!confirm('Importare questa bozza? I dati attualmente presenti nel generatore verranno sostituiti.')) return;
+    await applyDraft(parsed);
+    alert('Bozza importata correttamente. Ora puoi continuare a modificarla.');
+  }catch(err){alert('Impossibile importare la bozza: '+err.message);}
+  finally{e.target.value='';}
+});
+$('exportDraftBtn').addEventListener('click',exportDraft);
+
+async function restoreDraft(){
+  let draft;try{draft=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');}catch{return;}
+  if(!draft)return;
+  try{await applyDraft(draft);}catch(e){console.warn('Bozza locale non ripristinata:',e);}
+}
+$('saveDraftBtn').addEventListener('click',saveDraft);
+
+function clearDocument(){
+  if(!confirm('Vuoi davvero pulire il documento? Verranno cancellati tutti i campi, le fotografie, i documenti e anche la bozza salvata in questo browser.')) return;
+  for(const p of photos) if(p.url) URL.revokeObjectURL(p.url);
+  photos=[];photoId=0;
+  ['bozzetti','allestimento','galleria'].forEach(id=>$(id).replaceChildren());
+  fields.forEach(f=>{
+    if(f.type==='checkbox'||f.type==='radio') f.checked=false;
+    else if(f.id==='themeColor') f.value=DEFAULT_RED;
+    else f.value='';
+  });
+  documents=DEFAULT_DOCS.map(d=>({...d}));renderDocuments();
+  heroFile=null;heroDataUrl='';$('heroImage').value='';$('heroPreview').classList.add('hidden');$('heroPreview').querySelector('img').removeAttribute('src');
+  $('themeColor').value=DEFAULT_RED;
+  localStorage.removeItem(DRAFT_KEY);
+  $('review').classList.add('hidden');$('reviewContent').replaceChildren();
+  update();window.scrollTo({top:0,behavior:'smooth'});
+  alert('Documento pulito. La bozza salvata nel browser è stata eliminata.');
+}
+$('clearDocumentBtn').addEventListener('click',clearDocument);
+
+// ========================================
+// RIEPILOGO DETTAGLIATO
+// ========================================
+
+$('reviewBtn').addEventListener('click',()=>{
+  const data=fields
+    .filter(f=>f.value.trim())
+    .map(f=>({
+      label:f.id,
+      value:f.value.trim()
+    }));
+
+  $('reviewContent').innerHTML =
+    data.map(x=>`
+      <div class="review-item">
+        <b>${esc(x.label)}</b>
+        <span>${esc(x.value.slice(0,100))}</span>
+      </div>
+    `).join('')+
+    `<div class="review-item">
+      <b>Fotografie</b>
+      <span>${photos.filter(p=>p.file).length}</span>
+    </div>`;
+
+  $('review').classList.remove('hidden');
+});
+
+function safeUrl(raw) {
+  try { const u=new URL(String(raw).trim()); return ['http:','https:','mailto:'].includes(u.protocol)?u.href:''; }
+  catch { return ''; }
+}
+
+// ========================================
+// CREAZIONE DEL DOCUMENTO DEFINITIVO
+// ========================================
+
+function makeShowHtml(imageNames) {
+
+  const title=value('titolo');
+
+  const meta=[
+    ['Anno',value('anno')],
+    ['Teatro',value('teatro')],
+    ['Compagnia',value('compagnia')]
+  ].filter(x=>x[1]);
+
+  const metaHtml=meta.map(x=>
+    `<span>${esc(x[0])}: ${esc(x[1])}</span>`
+  ).join('');
+
+  function section(id,label,content) {
+    if (!content.trim()) return '';
+
+    return `
+      <section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">${esc(label)}</div>
+          <h2>${esc(label)}</h2>
+        </div>
+        <p>${esc(content).replace(/\n/g,'<br>')}</p>
+      </section>`;
+  }
+
+  function gallery(group,label,intro='') {
+    const list=photos.filter(p=>p.file&&p.group===group);
+
+    if (!list.length) return '';
+
+    const items=list.map(p=>{
+      const index=photos.filter(
+        x=>x.file && x.id<=p.id
+      ).length-1;
+
+      const name=imageNames[index];
+      const id='foto-'+p.id;
+
+      return `
+        <figure class="sa-photo">
+          <a href="#${id}">
+            <img src="immagini/${esc(name)}"
+                 alt="${esc(p.caption||title)}">
+          </a>
+          ${p.caption||p.credit?`
+            <figcaption>
+              ${p.caption?`<span>${esc(p.caption)}</span>`:''}
+              ${p.credit?`<small>${esc(p.credit)}</small>`:''}
+            </figcaption>`:''}
+        </figure>
+
+        <div class="sa-lightbox" id="${id}">
+          <a class="sa-lightbox-close" href="#galleria">×</a>
+          <img src="immagini/${esc(name)}" alt="${esc(p.caption||title)}">
+        </div>`;
+    }).join('');
+
+    return `
+      <section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">Documentazione</div>
+          <h2>${esc(label)}</h2>
+        </div>
+        ${intro?`<p class="sa-gallery-intro">${esc(intro)}</p>`:''}
+        <div class="sa-gallery">${items}</div>
+      </section>`;
+  }
+
+  const presentation=[
+    value('presentazione'),
+    value('percorso'),
+    value('nadia')
+  ].filter(Boolean).map(t=>`<p>${esc(t).replace(/\n/g,'<br>')}</p>`).join('');
+
+  const quote=value('citazione')
+    ? `<div class="sa-highlight">${esc(value('citazione'))}</div>`
+    : '';
+
+  const project=presentation||quote
+    ? `<section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">Lo spettacolo</div>
+          <h2>Il progetto teatrale</h2>
+        </div>
+        <div class="sa-intro">${presentation}</div>
+        ${quote}
+      </section>`
+    : '';
+
+  const scene=[
+    section('ideazione','Ideazione e progettazione',
+      value('ideazione')),
+    section('realizzazione','Costruzione e realizzazione',
+      value('realizzazione')),
+    section('tecniche','Tecniche e materiali',
+      value('tecniche'))
+  ].join('');
+
+  const scenePhotos=
+    gallery('bozzetti','Bozzetti e progettazione')+
+    gallery('allestimento','Realizzazione e allestimento');
+
+  const scenography=scene||scenePhotos
+    ? `<section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">Il lavoro creativo</div>
+          <h2>La scenografia e l'allestimento</h2>
+        </div>
+        ${scene}
+        ${scenePhotos}
+      </section>`
+    : '';
+
+  const galleryPhotos=gallery(
+    'galleria',
+    'Lo spettacolo in immagini',
+    value('galleryIntro')
+  );
+
+  const docs=documents.filter(d=>d.selected && d.name.trim());
+
+  const documentsHtml=docs.length
+    ? `<section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">Memoria e testimonianze</div>
+          <h2>Documenti e materiali d'archivio</h2>
+        </div>
+        <ul class="sa-documents">
+          ${docs.map(d=>`<li>${safeUrl(d.url)?`<a href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener noreferrer">${esc(d.name)}</a>`:esc(d.name)}</li>`).join('')}
+        </ul>
+      </section>`
+    : '';
+
+  const credits=[
+    ['Titolo',title],
+    ['Anno',value('anno')],
+    ['Compagnia',value('compagnia')],
+    ['Teatro',value('teatro')],
+    ['Autore / Testo',value('autore')],
+    ['Regia',value('regia')],
+    ['Scenografia',value('scenografo')],
+    ['Costumi',value('costumi')],
+    ['Luci',value('luci')],
+    ['Musiche',value('musiche')],
+    ['Interpreti',value('interpreti')],
+    ['Altri collaboratori',value('collaboratori')]
+  ].filter(x=>x[1]);
+
+  const creditHtml=credits.map(x=>
+    `<p><strong>${esc(x[0])}:</strong> ${esc(x[1]).replace(/\n/g,'<br>')}</p>`
+  ).join('');
+
+  const creditSection=creditHtml
+    ? `<section class="sa-section">
+        <div class="sa-section-title">
+          <div class="sa-eyebrow">Informazioni</div>
+          <h2>Crediti dello spettacolo</h2>
+        </div>
+        <div class="sa-credits">${creditHtml}</div>
+      </section>`
+    : '';
+
+  const subtitle=value('sottotitolo')
+    ? `<div class="sa-subtitle">${esc(value('sottotitolo'))}</div>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title>
+</head>
+<body>
+
+<style>
+${SKENE_CSS}
+.skene-archive { --sa-red: ${esc($('themeColor').value || DEFAULT_RED)}; }
+</style>
+
+<div class="skene-archive" id="galleria">
+
+<header class="sa-hero">
+  <div class="sa-eyebrow">Archivio storico · Skené</div>
+  <h1>${esc(title)}</h1>
+  ${subtitle}
+  ${heroDataUrl?`<div class="sa-cover-image"><img src="${heroDataUrl}" alt="Immagine introduttiva" style="display:block;width:100%;max-height:360px;object-fit:cover;border-radius:12px;margin-top:22px"></div>`:''}
+  ${metaHtml?`<div class="sa-meta">${metaHtml}</div>`:''}
+</header>
+
+${project}
+${scenography}
+${galleryPhotos}
+${documentsHtml}
+${creditSection}
+
+<footer class="sa-footer">
+  <div class="sa-divider"></div>
+  Skené · Teatrando insieme
+  <p>Un archivio di esperienze, immagini e percorsi teatrali.</p>
+</footer>
+
+</div>
+</body>
+</html>`;
+}
+
+// ========================================
+// CSS DEL MODELLO SKENE BORDEAUX
+// ========================================
+
+const SKENE_CSS = `
+.skene-archive {
+--sa-bg:#F5F1E9;
+--sa-card:#FFFFFF;
+--sa-text:#302A29;
+--sa-muted:#625956;
+--sa-red:#762D40;
+--sa-gold:#A77A37;
+--sa-border:#DED5C9;
+background:var(--sa-bg);
+color:var(--sa-text);
+font-family:Arial,sans-serif;
+font-size:16px;
+line-height:1.75;
+padding:24px;
+border-radius:18px;
+max-width:1100px;
+margin:0 auto;
+box-sizing:border-box;
+}
+.skene-archive *,
+.skene-archive *::before,
+.skene-archive *::after {box-sizing:border-box}
+.skene-archive .sa-cover-image { margin-top:20px; }
+.skene-archive .sa-hero {
+background:var(--sa-red);
+color:#FFF8EF;
+text-align:center;
+padding:38px 24px;
+border-radius:16px;
+margin-bottom:24px;
+}
+.skene-archive .sa-hero * {color:#FFF8EF}
+.skene-archive .sa-hero .sa-eyebrow {color:#F0D49B}
+.skene-archive .sa-hero h1 {
+color:#FFF8EF;
+font:normal clamp(30px,5vw,44px) Georgia,serif;
+line-height:1.25;
+margin:14px 0;
+text-align:center;
+}
+.skene-archive .sa-subtitle {
+color:#F5E9DF;
+font:italic 19px Georgia,serif;
+}
+.skene-archive .sa-meta {
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:9px;
+margin-top:22px;
+}
+.skene-archive .sa-meta span {
+background:rgba(255,255,255,.10);
+border:1px solid rgba(255,255,255,.35);
+color:#FFF8EF;
+border-radius:30px;
+padding:6px 13px;
+font-size:13px;
+}
+.skene-archive h2,
+.skene-archive h3 {
+font-family:Georgia,serif;
+line-height:1.35;
+font-weight:normal;
+color:var(--sa-red);
+}
+.skene-archive h2 {font-size:26px;margin:0 0 18px}
+.skene-archive h3 {font-size:21px;margin:28px 0 15px}
+.skene-archive p {color:var(--sa-text);margin:0 0 16px}
+.skene-archive .sa-eyebrow {
+color:var(--sa-gold);
+font-size:12px;
+font-weight:bold;
+letter-spacing:2px;
+text-transform:uppercase;
+}
+.skene-archive .sa-section {
+background:var(--sa-card);
+color:var(--sa-text);
+border:1px solid var(--sa-border);
+border-radius:16px;
+padding:28px;
+margin:22px 0;
+}
+.skene-archive .sa-section-title {
+border-bottom:2px solid var(--sa-gold);
+padding-bottom:12px;
+margin-bottom:22px;
+}
+.skene-archive .sa-intro {
+font:18px/1.85 Georgia,serif;
+}
+.skene-archive .sa-highlight {
+background:var(--sa-bg);
+color:var(--sa-text);
+border-left:4px solid var(--sa-gold);
+padding:15px 20px;
+margin:20px 0;
+border-radius:0 10px 10px 0;
+font-style:italic;
+}
+.skene-archive .sa-gallery-intro {
+color:var(--sa-muted);
+margin-bottom:22px;
+}
+.skene-archive .sa-gallery {
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:14px;
+}
+.skene-archive .sa-photo {margin:0;min-width:0}
+.skene-archive .sa-photo a {
+display:block;
+overflow:hidden;
+border-radius:11px;
+background:var(--sa-bg);
+}
+.skene-archive .sa-photo img {
+width:100%;
+height:220px;
+object-fit:cover;
+display:block;
+transition:transform .3s ease;
+}
+.skene-archive .sa-photo a:hover img {transform:scale(1.04)}
+.skene-archive .sa-photo figcaption {
+color:var(--sa-muted);
+font-size:13px;
+line-height:1.5;
+padding:9px 4px;
+}
+.skene-archive .sa-documents {
+list-style:none;
+padding:0;
+margin:0;
+}
+.skene-archive .sa-documents a { color:var(--sa-red); text-decoration:underline; text-underline-offset:3px; }
+.skene-archive .sa-documents li {
+color:var(--sa-text);
+padding:12px 5px;
+border-bottom:1px solid var(--sa-border);
+}
+.skene-archive .sa-documents li::before {
+content:"◆";
+color:var(--sa-gold);
+margin-right:12px;
+}
+.skene-archive .sa-credits {
+background:var(--sa-bg);
+color:var(--sa-text);
+padding:18px;
+border-radius:12px;
+}
+.skene-archive .sa-credits p {margin-bottom:7px}
+.skene-archive .sa-footer {
+text-align:center;
+padding:22px 10px;
+color:var(--sa-muted);
+font:italic 16px Georgia,serif;
+}
+.skene-archive .sa-divider {
+width:65px;
+height:3px;
+background:var(--sa-gold);
+margin:20px auto;
+}
+.skene-archive .sa-lightbox {
+display:none;
+position:fixed;
+z-index:99999;
+inset:0;
+background:rgba(15,12,12,.95);
+align-items:center;
+justify-content:center;
+padding:25px;
+}
+.skene-archive .sa-lightbox:target {display:flex}
+.skene-archive .sa-lightbox img {
+max-width:95%;
+max-height:85vh;
+width:auto;
+height:auto;
+object-fit:contain;
+}
+.skene-archive .sa-lightbox-close {
+position:absolute;
+top:18px;
+right:25px;
+color:white;
+font-size:36px;
+text-decoration:none;
+}
+@media(prefers-color-scheme:dark) {
+.skene-archive {
+--sa-bg:#252323;
+--sa-card:#302C2B;
+--sa-text:#F3EDE5;
+--sa-muted:#D0C5BC;
+--sa-gold:#D9B36F;
+--sa-border:#514744;
+}
+.skene-archive .sa-section h2,
+.skene-archive .sa-section h3 {color:#E5A4B2}
+}
+@media(max-width:700px) {
+.skene-archive {padding:12px}
+.skene-archive .sa-hero {padding:28px 16px}
+.skene-archive .sa-section {padding:19px}
+.skene-archive .sa-gallery {
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:9px;
+}
+.skene-archive .sa-photo img {height:155px}
+}
+@media(max-width:380px) {
+.skene-archive .sa-gallery {grid-template-columns:1fr}
+.skene-archive .sa-photo img {height:auto}
+}
+`;
+
+// ========================================
+// SALVATAGGIO
+// UNA SOLA FINESTRA DI SCELTA DEL PERCORSO
+// ========================================
+
+async function exportFolder() {
+
+  const title=value('titolo');
+
+  if (!title) {
+    alert('Inserisci prima il titolo dello spettacolo.');
+    $('titolo').focus();
+    return;
+  }
+
+  if (!window.showDirectoryPicker) {
+    alert(
+      'Il salvataggio diretto delle cartelle richiede Chrome o Edge aggiornati.'
+    );
+    return;
+  }
+
+  const button=$('exportBtn');
+
+  button.disabled=true;
+  button.textContent='Preparazione della scheda...';
+
+  try {
+
+    // Il nome viene ricavato direttamente dal titolo.
+    // Non viene richiesta una seconda finestra o un nome manuale.
+
+    const folderName=safeName(title);
+
+    // UNICA FINESTRA: scelta della cartella di destinazione.
+
+    const parentHandle=await window.showDirectoryPicker({
+      mode:'readwrite'
+    });
+
+    // Cartella dello spettacolo.
+
+    const showHandle=await parentHandle.getDirectoryHandle(
+      folderName,{create:true}
+    );
+
+    // Sottocartella delle fotografie.
+
+    const imagesHandle=await showHandle.getDirectoryHandle(
+      'immagini',{create:true}
+    );
+
+    const selectedPhotos=photos.filter(p=>p.file);
+    const imageNames=[];
+
+    for(let i=0;i<selectedPhotos.length;i++) {
+
+      const p=selectedPhotos[i];
+      const file=p.file;
+
+      let extension=(file.name.split('.').pop()||'').toLowerCase();
+
+      const allowed={
+        'image/jpeg':'jpg',
+        'image/png':'png',
+        'image/gif':'gif',
+        'image/webp':'webp',
+        'image/svg+xml':'svg',
+        'image/avif':'avif'
+      };
+
+      if(!/^[a-z0-9]{2,5}$/.test(extension)) {
+        extension=allowed[file.type]||'jpg';
+      }
+
+      if(!allowed[file.type] && !/^[a-z0-9]{2,5}$/.test(extension)) {
+        extension='jpg';
+      }
+
+      const imageName=
+        `foto-${String(i+1).padStart(2,'0')}.${extension}`;
+
+      const imageHandle=await imagesHandle.getFileHandle(
+        imageName,{create:true}
+      );
+
+      const writable=await imageHandle.createWritable();
+
+      await writable.write(file);
+      await writable.close();
+
+      imageNames.push(imageName);
+    }
+
+    // Generazione della pagina definitiva.
+
+    const html=makeShowHtml(imageNames);
+
+    // Nome del file HTML uguale al titolo della cartella.
+
+    const htmlHandle=await showHandle.getFileHandle(
+      folderName+'.html',{create:true}
+    );
+
+    const writableHtml=await htmlHandle.createWritable();
+
+    await writableHtml.write(
+      new Blob(['\uFEFF',html],{
+        type:'text/html;charset=utf-8'
+      })
+    );
+
+    await writableHtml.close();
+
+    alert(
+      'Scheda salvata correttamente!\n\n'+
+      folderName+'/'+folderName+'.html\n'+
+      'Fotografie: '+folderName+'/immagini/'
+    );
+
+  } catch(error) {
+
+    if(error.name!=='AbortError') {
+      alert('Errore durante il salvataggio:\n'+error.message);
+    }
+
+  } finally {
+
+    button.disabled=false;
+    button.textContent='Genera e salva la scheda';
+  }
+}
+
+$('exportBtn').addEventListener('click',exportFolder);
+
+// ========================================
+// INIZIALIZZAZIONE
+// ========================================
+
+documents=DEFAULT_DOCS.map(d=>({...d}));
+renderDocuments();
+restoreDraft().then(update);
+update();
+
+</script>
+
+</body>
+</html>
